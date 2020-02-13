@@ -2,6 +2,15 @@ import React from 'react';
 import { Product } from "./mock";
 
 export class FilterableProductTable extends React.Component {
+    constructor(props) {
+    super(props);
+    this.state = {
+      filterText: "",
+      stocked: false
+    };
+
+  }
+
     render() {
         return (
             <div>
@@ -43,14 +52,23 @@ export class SearchBar extends React.Component {
 
 
 
-const ProductRow = (product) => {
-    return (
+class ProductRow extends React.Component {
+    render() {
+      const product = this.props.product;
+  
+      const name = product.stocked ? (
+        product.name
+      ) : (
+        <span style={{ color: "red" }}>{product.name}</span>
+      );
+      return (
         <tr>
-            <td>{product.name}</td> 
-            <td>{product.price}</td>
+          <td>{name}</td>
+          <td>{product.price}</td>
         </tr>
-    )
-};
+      );
+    }
+  }
 
 // export class ProductCategoryRow extends React.Component {
 //     constructor(props) {
@@ -78,7 +96,7 @@ class ProductTable extends React.Component {
   
     render() {
         const rows = [];
-        const lastCategory = null;
+        let lastCategory = null;
 
         this.props.product.forEach(product => {
             if(product.category !== lastCategory) {
@@ -90,8 +108,14 @@ class ProductTable extends React.Component {
 
         return (
             <table>
-                {rows}
-            </table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody>{rows}</tbody>
+      </table>
         )
     }
 }
