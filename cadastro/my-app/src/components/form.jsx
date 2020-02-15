@@ -20,6 +20,19 @@ export class Form extends React.Component {
     }
     handleChange = (name, value) => this.setState({ [name]: value });
 
+    validateEmail = email => email.includes("@") && email.includes(".");
+    
+    handleSubmit = event => {
+        event.preventDefault();
+        const { name, city, email, cpf, phone } = this.state;
+        if (!this.validateEmail(email)) {
+        return alert("Por favor insira um e-mail válido.");
+        }
+        if (!name || !city || !email || !cpf || !phone) {
+        return alert("por favor, preencha todos os campos");
+        }
+    };
+
     render() {
         return(
             <form onSubmit={this.handleSubmit}>
