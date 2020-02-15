@@ -3,30 +3,75 @@ import { Product } from "./mock";
 
 export class FilterableProductTable extends React.Component {
     constructor(props) {
-    super(props);
-    this.state = {
-      filterText: "",
-      stocked: false
-    };
+        super(props);
+        this.state = {
+        filterText: "",
+        stocked: false
+        };
+        this.handleFilterTextChange = this.handleFilterTextChange.bind(this);
+        this.handleInStockChange = this.handleInStockChange.bind(this);
+  }
 
+  handleFilterTextChange(filterText) {
+    this.setState({
+      filterText: filterText
+    });
+  }
+  
+  handleInStockChange(stocked) {
+    this.setState({
+      stocked: stocked
+    })
   }
 
     render() {
         return (
             <div>
-                <SearchBar/>
-                <ProductTable product={Product}/>
+                <SearchBar
+                inputValue={this.state.filterText}
+                checkStocked={this.state.stocked}
+                onFilterTextChange={this.handleFilterTextChange}
+                onInStockChange={this.handleInStockChange}/>
+                <ProductTable 
+                product={Product} 
+                inputValue={this.state.filterText}
+                checkStocked={this.state.stocked}/>
             </div>
         );
     }
 }
 
 export class SearchBar extends React.Component {
+  constructor(props) {
+    super(props);
+    this.handleFilterTextChange = this.handleFilterTextChange.bind(this);
+    this.handleInStockChange = this.handleInStockChange.bind(this);
+  }
+  
+  handleFilterTextChange(e) {
+    this.props.onFilterTextChange(e.target.value);
+  }
+  
+  handleInStockChange(e) {
+    this.props.onInStockChange(e.target.checked);
+  }
     render() {
+      const inputValue = this.props.filterText;
+      const checkStocked = this.props.stocked;
+
         return (
             <div> 
-                <input type='text' placeholder='Search...'/>
-                <p><input type='checkbox'/> Somente produtos em estoque</p>
+                <input 
+                type='text' 
+                placeholder="search ..."
+                value={this.props.filterText}
+                onChange={this.handleFilterTextChange}/>
+                <p>
+                  <input 
+                    type='checkbox' 
+                    checked={checkStocked}
+                    onChange={this.handleInStockChange}/> Somente produtos em estoque
+                </p>
             </div>
         )
     }
@@ -93,21 +138,38 @@ const ProductCategoryRow = ({category}) => {
 };
 
 class ProductTable extends React.Component {
-  
-    render() {
-        const rows = [];
-        let lastCategory = null;
+  render() {
+    const filterText = this.props.filterText;
+    const inStockOnly = this.props.stocked;
 
-        this.props.product.forEach(product => {
-            if(product.category !== lastCategory) {
-                rows.push(<ProductCategoryRow category={product.category} key={product.category}/>)
-            }
-            rows.push(<ProductRow product={product} key={product.name} />)
-            lastCategory = product.category;
-        });
+    const rows = [];
+    let lastCategory = null;
 
-        return (
-            <table>
+    this.props.products.forEach((product) => {
+      if (product.name.indexOf(filterText) === -1) {
+        return;
+      }
+      if (inStockOnly && !product.stocked) {
+        return;
+      }
+      if (product.category !== lastCategory) {
+        rows.push(
+          <ProductCategoryRow
+            category={product.category}
+            key={product.category} />
+        );
+      }
+      rows.push(
+        <ProductRow
+          product={product}
+          key={product.name}
+        />
+      );
+      lastCategory = product.category;
+    });
+
+    return (
+      <table>
         <thead>
           <tr>
             <th>Name</th>
@@ -116,7 +178,8 @@ class ProductTable extends React.Component {
         </thead>
         <tbody>{rows}</tbody>
       </table>
-        )
-    }
+    );
+  }
 }
+
 
